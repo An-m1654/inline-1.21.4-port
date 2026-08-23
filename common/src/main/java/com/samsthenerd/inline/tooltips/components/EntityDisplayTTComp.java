@@ -1,5 +1,6 @@
 package com.samsthenerd.inline.tooltips.components;
 
+import com.samsthenerd.inline.mixin.core.MixinDrawContextAccessor;
 import com.samsthenerd.inline.tooltips.data.EntityDisplayTTData;
 import com.samsthenerd.inline.utils.EntityCradle;
 import net.minecraft.client.MinecraftClient;
@@ -8,6 +9,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.Box;
@@ -27,14 +29,10 @@ public class EntityDisplayTTComp implements TooltipComponent {
     }
 
     @Override
-    public void drawItems(TextRenderer font, int mouseX, int mouseY, DrawContext context) {
+    public void drawItems(TextRenderer font, int mouseX, int mouseY, int width, int height, DrawContext context) {
         // reload it just incase it failed the first time or whatever ?
         Entity ent = cradle.getEntity(MinecraftClient.getInstance().world);
         if(ent == null) return;
-
-        Box bounds = ent.getBoundingBox().expand(0, 0.05, 0);
-
-        double height = bounds.getLengthY();
 
         float rot = 15f;
 
@@ -50,7 +48,8 @@ public class EntityDisplayTTComp implements TooltipComponent {
         MinecraftClient client = MinecraftClient.getInstance();
         // float rotation = 90f * (Util.getMeasuringTimeMs() / 1000f + data.getUniqueOffset());
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rot));
-        renderer.render(ent, 0, 0, matrices, context.getVertexConsumers(), LightmapTextureManager.MAX_LIGHT_COORDINATE);
+        EntityRenderState renderState = renderer.getAndUpdateRenderState(ent, MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(false));
+        renderer.render(renderState, matrices, ((MixinDrawContextAccessor) context).inline$getVertexConsumers(), LightmapTextureManager.MAX_LIGHT_COORDINATE);
         matrices.pop();
     }
 
@@ -101,7 +100,7 @@ public class EntityDisplayTTComp implements TooltipComponent {
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(TextRenderer textRenderer) {
         return getRenderHeight() + 4; 
     }
 }

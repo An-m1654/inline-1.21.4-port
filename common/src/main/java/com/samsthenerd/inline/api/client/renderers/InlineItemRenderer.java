@@ -4,14 +4,17 @@ import com.samsthenerd.inline.Inline;
 import com.samsthenerd.inline.api.client.GlowHandling;
 import com.samsthenerd.inline.api.client.InlineRenderer;
 import com.samsthenerd.inline.api.data.ItemInlineData;
+import com.samsthenerd.inline.mixin.core.MixinDrawContextAccessor;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.data.ModelIds;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.model.BakedModel;
-import net.minecraft.client.render.model.json.ModelTransformationMode;
+import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ModelTransformationMode;
 import net.minecraft.text.Style;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.crash.CrashCallable;
@@ -20,6 +23,8 @@ import net.minecraft.util.crash.CrashReport;
 import net.minecraft.util.crash.CrashReportSection;
 import net.minecraft.world.World;
 import org.joml.Matrix4f;
+
+import java.util.Random;
 
 public class InlineItemRenderer implements InlineRenderer<ItemInlineData>{
 
@@ -48,7 +53,7 @@ public class InlineItemRenderer implements InlineRenderer<ItemInlineData>{
         if (stack.isEmpty()) {
             return 8;
         }
-        BakedModel bakedModel = client.getItemRenderer().getModel(stack, world, null, 0);
+        BakedModel bakedModel = client.getBakedModelManager().getModel(new ModelIdentifier(ModelIds.getItemModelId(stack.getItem()), "")); //! This is probably default variant. Idk how to fix
         boolean flat = !bakedModel.isSideLit();
         /*
          * here we do a bunch of garbage to make lighting work as nicely as possible in-game.
@@ -67,8 +72,9 @@ public class InlineItemRenderer implements InlineRenderer<ItemInlineData>{
         try {
             matrices.multiplyPositionMatrix(new Matrix4f().scaling(1.0f, -1.0f, 1.0f));
             matrices.scale(8.0f, 8.0f, 8f);
-            client.getItemRenderer().renderItem(stack, ModelTransformationMode.GUI, false, matrices, context.getVertexConsumers(), trContext.light(), OverlayTexture.DEFAULT_UV, bakedModel);
-            context.getVertexConsumers().draw();
+//            client.getItemRenderer().renderItem(stack, ModelTransformationMode.GUI, false, matrices, context.getVertexConsumers(), trContext.light(), OverlayTexture.DEFAULT_UV, bakedModel);
+            client.getItemRenderer().renderItem(stack, ModelTransformationMode.GUI, trContext.light(), OverlayTexture.DEFAULT_UV, matrices, ((MixinDrawContextAccessor) context).inline$getVertexConsumers(), world, new Random().nextInt());
+            ((MixinDrawContextAccessor) context).inline$getVertexConsumers().draw();
         } catch (Throwable throwable) {
             CrashReport crashReport = CrashReport.create(throwable, "Rendering item");
             CrashReportSection crashReportSection = crashReport.addElement("Item being rendered");
@@ -89,7 +95,8 @@ public class InlineItemRenderer implements InlineRenderer<ItemInlineData>{
     @Override
     public GlowHandling getGlowPreference(ItemInlineData forData){
         // this nonsense should force it to refresh for animated sprites ?
-        BakedModel bakedModel = MinecraftClient.getInstance().getItemRenderer().getModel(forData.getStack(), MinecraftClient.getInstance().world, null, 0);
-        return new GlowHandling.Full(forData.getStack().getTranslationKey() + Integer.toHexString(bakedModel.hashCode()));
+//        BakedModel bakedModel = MinecraftClient.getInstance().getItemRenderer().getModel(forData.getStack(), MinecraftClient.getInstance().world, null, 0);
+        BakedModel bakedModel = MinecraftClient.getInstance().getBakedModelManager().getModel(new ModelIdentifier(ModelIds.getItemModelId(forData.getStack().getItem()), ""));
+        return new GlowHandling.Full(forData.getStack().getItem().getTranslationKey() + Integer.toHexString(bakedModel.hashCode()));  //! This is probably default variant. Idk how to fix
     }
 }

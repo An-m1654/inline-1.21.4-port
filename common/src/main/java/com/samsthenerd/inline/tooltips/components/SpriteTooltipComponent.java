@@ -25,7 +25,7 @@ public class SpriteTooltipComponent implements TooltipComponent {
     }
 
     @Override
-    public void drawItems(TextRenderer font, int mouseX, int mouseY, DrawContext context) {
+    public void drawItems(TextRenderer font, int mouseX, int mouseY, int width, int height, DrawContext context) {
         // reload it just incase it failed the first time or whatever ?
         Identifier textureId = sprite.getTextureId();
         if(textureId == null || textureId.equals(Identifier.of(""))){
@@ -63,7 +63,7 @@ public class SpriteTooltipComponent implements TooltipComponent {
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(TextRenderer textRenderer) {
         return getRenderHeight() + 4;
     }
 }

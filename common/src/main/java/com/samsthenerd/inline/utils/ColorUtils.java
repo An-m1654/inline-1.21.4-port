@@ -130,30 +130,20 @@ public class ColorUtils {
     }
 
     public static float[] ARGBtoHSB(int argb){
-        return RGBtoHSB(ColorHelper.Argb.getRed(argb), ColorHelper.Argb.getGreen(argb),
-                ColorHelper.Argb.getBlue(argb), new float[3]);
+        return RGBtoHSB(ColorHelper.getRed(argb), ColorHelper.getGreen(argb),
+                ColorHelper.getBlue(argb), new float[3]);
     }
 
     public static float[] ABGRtoHSB(int abgr){
-        return RGBtoHSB(ColorHelper.Abgr.getRed(abgr), ColorHelper.Abgr.getGreen(abgr),
-                ColorHelper.Abgr.getBlue(abgr), new float[3]);
+        return RGBtoHSB(ColorHelper.getRed(ColorHelper.fromAbgr(abgr)), ColorHelper.getGreen(ColorHelper.fromAbgr(abgr)),
+                ColorHelper.getBlue(ColorHelper.fromAbgr(abgr)), new float[3]);
     }
 
     public static int ARGBtoABGR(int argb){
-        return ColorHelper.Abgr.getAbgr(
-                ColorHelper.Argb.getAlpha(argb),
-                ColorHelper.Argb.getBlue(argb),
-                ColorHelper.Argb.getGreen(argb),
-                ColorHelper.Argb.getRed(argb)
-        );
+        return ColorHelper.toAbgr(argb);
     }
 
     public static int ABGRtoARGB(int abgr){
-        return ColorHelper.Argb.getArgb(
-                ColorHelper.Abgr.getAlpha(abgr),
-                ColorHelper.Abgr.getRed(abgr),
-                ColorHelper.Abgr.getGreen(abgr),
-                ColorHelper.Abgr.getBlue(abgr)
-        );
+        return ColorHelper.fromAbgr(abgr);
     }
 }

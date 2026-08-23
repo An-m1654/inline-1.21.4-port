@@ -3,6 +3,7 @@ package com.samsthenerd.inline.impl;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.util.concurrent.AtomicDouble;
+import com.mojang.blaze3d.systems.ProjectionType;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.VertexSorter;
 import com.samsthenerd.inline.Inline;
@@ -39,7 +40,7 @@ import java.util.Set;
 
 public class InlineRenderCore {
 
-    private static SimpleFramebuffer GLOW_BUFF = new SimpleFramebuffer(128, 128, true, MinecraftClient.IS_SYSTEM_MAC);
+    private static SimpleFramebuffer GLOW_BUFF = new SimpleFramebuffer(128, 128, true);
 
     private static Set<Identifier> ERRORED_RENDERERS = new HashSet<>();
 
@@ -95,13 +96,13 @@ public class InlineRenderCore {
 
         float alphaToUse = (args.alpha() == 0 ? 1 : args.alpha());
 
-        int rendererARGB = ColorHelper.Argb.getArgb(
+        int rendererARGB = ColorHelper.getArgb(
                 Math.round(alphaToUse* 255), Math.round(args.red() * 255),
                 Math.round(args.green() * 255), Math.round(args.blue() * 255)
         );
         int usableColor = rendererARGB;
         if(style.getColor() != null){
-            usableColor = ColorHelper.Argb.mixColor(rendererARGB, style.getColor().getRgb() | 0xFF_000000);
+            usableColor = ColorHelper.mix(rendererARGB, style.getColor().getRgb() | 0xFF_000000);
         }
 
         InlineRenderer.TextRenderingContext trContext = new InlineRenderer.TextRenderingContext(args.light(), args.shadow(), args.brightnessMultiplier(),
@@ -173,19 +174,20 @@ public class InlineRenderCore {
 
         int resScale = 8;
         GLOW_BUFF.setClearColor(0, 0, 0, 0);
-        GLOW_BUFF.clear(false);
+        GLOW_BUFF.clear();
         MinecraftClient.getInstance().getFramebuffer().endWrite();
         Matrix4fStack mvStack = RenderSystem.getModelViewStack();
         Matrix4f backupProjMatrix = RenderSystem.getProjectionMatrix();
         mvStack.pushMatrix();
         mvStack.identity();
-        RenderSystem.applyModelViewMatrix();
-        VertexSorter backupVertexSorter = RenderSystem.getVertexSorting();
+        //! IS BELOW NEEDED?
+//        RenderSystem.applyModelViewMatrix();
+        ProjectionType backupProjectionType = RenderSystem.getProjectionType();
         RenderSystem.backupProjectionMatrix();
         Matrix4f newProjMatrix = new Matrix4f();
         newProjMatrix.identity();
         newProjMatrix.setOrtho(0, 16*resScale, 0,16*resScale, 0, 100);
-        RenderSystem.setProjectionMatrix(newProjMatrix, VertexSorter.BY_DISTANCE);
+        RenderSystem.setProjectionMatrix(newProjMatrix, ProjectionType.PERSPECTIVE);
         GLOW_BUFF.beginWrite(true);
         DrawContext glowContext = new DrawContext(MinecraftClient.getInstance(), immToUse);
         MatrixStack glowStack = glowContext.getMatrices();
@@ -200,8 +202,9 @@ public class InlineRenderCore {
         immToUse.draw();
 
         mvStack.popMatrix();
-        RenderSystem.applyModelViewMatrix();
-        RenderSystem.setProjectionMatrix(backupProjMatrix, backupVertexSorter);
+        //! IS BELOW NEEDED?
+//        RenderSystem.applyModelViewMatrix();
+        RenderSystem.setProjectionMatrix(backupProjMatrix, backupProjectionType);
         GLOW_BUFF.endWrite();
 
         try (NativeImage nativeImage = new NativeImage(16*resScale, 16*resScale, true)) {
@@ -220,7 +223,7 @@ public class InlineRenderCore {
             int imgHeight = nativeImage.getHeight();
             for(int px = 0; px < imgWidth; px++){
                 for(int py = 0; py < imgHeight; py++){
-                    if(ColorHelper.Argb.getAlpha(nativeImage.getColor(px, py)) == 0) continue;
+                    if(ColorHelper.getAlpha(nativeImage.getColorArgb(px, py)) == 0) continue;
                     int thisPos = px + py *imgWidth;
                     seenPixels.put(thisPos, 0);
                     pixelQueue.add(thisPos);
@@ -231,7 +234,7 @@ public class InlineRenderCore {
                 int cPix = pixelQueue.poll(); // get current pixel to process;
                 int cX = cPix % imgWidth;
                 int cY = cPix / imgWidth;
-                fullImage.setColor(cX, cY, 0xFF_FFFFFF);
+                fullImage.setColorArgb(cX, cY, 0xFF_FFFFFF);
                 if(seenPixels.get(cPix) >= outlineRange) continue; // exit out if we don't need to add neighbors
                 for(int i = -1; i <= 1; i++){
                     if( cX + i < 0 || cX + i >= imgWidth) continue;
@@ -248,14 +251,16 @@ public class InlineRenderCore {
 
             MinecraftClient.getInstance().getFramebuffer().beginWrite(true);
             if(texCacheId != null){
-                Identifier backTexId = MinecraftClient.getInstance().getTextureManager().registerDynamicTexture(
-                        texCacheId,
+                MinecraftClient.getInstance().getTextureManager().registerTexture(
+                        Inline.id(texCacheId),
                         new NativeImageBackedTexture(fullImage));
+                Identifier backTexId = Inline.id(texCacheId);
                 TextureSprite tSprite = new TextureSprite(backTexId);
                 GLOW_TEXTURE_CACHE.put(texCacheId, tSprite);
                 return new Pair<>(tSprite, () -> {});
             } else {
-                Identifier backTexId = MinecraftClient.getInstance().getTextureManager().registerDynamicTexture(Inline.id("glowtextureback").toTranslationKey(), new NativeImageBackedTexture(fullImage));
+                MinecraftClient.getInstance().getTextureManager().registerTexture(Inline.id("glowtextureback"), new NativeImageBackedTexture(fullImage));
+                Identifier backTexId = Inline.id("glowtextureback");
                 return new Pair<>(new TextureSprite(backTexId), () -> {
                     MinecraftClient.getInstance().getTextureManager().destroyTexture(backTexId);
                 });

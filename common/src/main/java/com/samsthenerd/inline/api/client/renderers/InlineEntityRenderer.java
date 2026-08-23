@@ -5,9 +5,11 @@ import com.samsthenerd.inline.api.client.GlowHandling;
 import com.samsthenerd.inline.api.client.InlineRenderer;
 import com.samsthenerd.inline.api.data.EntityInlineData;
 
+import com.samsthenerd.inline.mixin.core.MixinDrawContextAccessor;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.entity.EntityRenderer;
+import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.text.Style;
@@ -44,7 +46,9 @@ public class InlineEntityRenderer implements InlineRenderer<EntityInlineData>{
         matrices.scale(8 / height, -8 / height, 8 / height);
         // float rotation = 90f * (Util.getMeasuringTimeMs() / 1000f + data.getUniqueOffset());
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rot));
-        renderer.render(ent, 0, 0, matrices, context.getVertexConsumers(), trContext.light());
+        EntityRenderState renderState = renderer.getAndUpdateRenderState(ent, MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(false));
+        renderer.render(renderState, matrices, ((MixinDrawContextAccessor) context).inline$getVertexConsumers(), trContext.light());
+
         return cDist;
     }
 

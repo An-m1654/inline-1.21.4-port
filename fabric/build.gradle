@@ -1,9 +1,9 @@
 plugins {
-    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "com.gradleup.shadow" version "9.6.1"
     id "me.modmuss50.mod-publish-plugin" version "0.5.1"
 }
 
-archivesBaseName = "${archivesBaseName}-fabric"
+base.archivesName = "${archives_base_name}-fabric"
 
 architectury {
     platformSetupLoomIde()
@@ -101,7 +101,7 @@ components.java {
 publishing {
     publications {
         mavenFabric(MavenPublication) {
-            artifactId = archivesBaseName
+            artifactId = base.archivesName
             from components.java
         }
     }
@@ -162,7 +162,7 @@ tasks {
     publishGithub {
         dependsOn(
             project(":common").tasks.remapJar,
-            project(":neoforge").tasks.remapJar,
+//            project(":neoforge").tasks.remapJar,
         )
 
         // we need to do this here so that it waits until Forge is already configured
@@ -173,7 +173,7 @@ tasks {
 
                 additionalFiles.from(
                     project(":common").tasks.remapJar.archiveFile,
-                    project(":neoforge").tasks.remapJar.archiveFile,
+//                    project(":neoforge").tasks.remapJar.archiveFile,
                 )
             }
         }

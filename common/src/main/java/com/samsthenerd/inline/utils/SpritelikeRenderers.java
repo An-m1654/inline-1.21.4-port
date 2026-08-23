@@ -1,7 +1,9 @@
 package com.samsthenerd.inline.utils;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.samsthenerd.inline.mixin.core.MixinDrawContextAccessor;
 import com.samsthenerd.inline.utils.Spritelike.SpritelikeType;
+import net.minecraft.client.gl.ShaderProgramKeys;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.*;
 import net.minecraft.util.Identifier;
@@ -35,10 +37,10 @@ public class SpritelikeRenderers {
             Identifier texture = sprite.getTextureId();
             if(texture == null) return;
             RenderSystem.setShaderTexture(0, texture);
-            RenderSystem.setShader(GameRenderer::getRenderTypeEntityTranslucentProgram);
+            RenderSystem.setShader(ShaderProgramKeys.RENDERTYPE_ENTITY_TRANSLUCENT);
             Matrix4f matrix4f = ctx.getMatrices().peek().getPositionMatrix();
             RenderLayer renderLayer = RenderLayer.getEntityTranslucent(texture);
-            VertexConsumer vc = ctx.getVertexConsumers().getBuffer(renderLayer);
+            VertexConsumer vc = ((MixinDrawContextAccessor) ctx).inline$getVertexConsumers().getBuffer(renderLayer);
             SpriteUVRegion uvs = sprite.getUVs();
             vc.vertex(matrix4f, x, y, z)
                 .color(argb)
@@ -69,14 +71,14 @@ public class SpritelikeRenderers {
                 .normal(ctx.getMatrices().peek(), 0, 0, 1f)
                 ;
 
-            ctx.getVertexConsumers().draw(renderLayer);
+            ((MixinDrawContextAccessor) ctx).inline$getVertexConsumers().draw(renderLayer);
         }
         
         public void drawSprite(Spritelike sprite, DrawContext ctx, float x, float y, float z, float width, float height){
             Identifier texture = sprite.getTextureId();
             if(texture == null) return;
             RenderSystem.setShaderTexture(0, texture);
-            RenderSystem.setShader(GameRenderer::getPositionTexProgram);
+            RenderSystem.setShader(ShaderProgramKeys.POSITION_TEX);
             Matrix4f matrix4f = ctx.getMatrices().peek().getPositionMatrix();
             SpriteUVRegion uvs = sprite.getUVs();
             BufferBuilder bufferBuilder = Tessellator.getInstance().begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE);

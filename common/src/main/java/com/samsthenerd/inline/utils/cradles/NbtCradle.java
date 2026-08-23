@@ -5,6 +5,7 @@ import com.samsthenerd.inline.Inline;
 import com.samsthenerd.inline.utils.EntityCradle;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -49,7 +50,7 @@ public class NbtCradle extends EntityCradle {
             return ownCachedEntity;
         }
 
-        ownCachedEntity = EntityType.getEntityFromNbt(entityTag, world).orElse(null);
+        ownCachedEntity = EntityType.getEntityFromNbt(entityTag, world, SpawnReason.NATURAL).orElse(null);
         ENTITY_CACHE.put(entityTag, ownCachedEntity);
         return ownCachedEntity;
     }

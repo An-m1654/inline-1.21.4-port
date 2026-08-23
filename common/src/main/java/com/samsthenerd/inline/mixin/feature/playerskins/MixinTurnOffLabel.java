@@ -12,7 +12,7 @@ import net.minecraft.entity.player.PlayerEntity;
 @Mixin(LivingEntityRenderer.class)
 public class MixinTurnOffLabel {
     @ModifyReturnValue(
-        method = "hasLabel(Lnet/minecraft/entity/LivingEntity;)Z",
+        method = "hasLabel(Lnet/minecraft/entity/LivingEntity;D)Z",
         at = @At("RETURN")
     )
     private boolean killPlayerLabel(boolean original, LivingEntity entity){

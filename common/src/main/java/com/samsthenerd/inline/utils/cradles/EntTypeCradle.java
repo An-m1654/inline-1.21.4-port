@@ -6,6 +6,7 @@ import com.samsthenerd.inline.Inline;
 import com.samsthenerd.inline.utils.EntityCradle;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
@@ -49,7 +50,7 @@ public class EntTypeCradle<E extends Entity> extends EntityCradle {
         }
 
         try{
-            Entity newEnt = type.create(world);
+            Entity newEnt = type.create(world, SpawnReason.NATURAL);
             ENTITY_CACHE.put(typeId, newEnt);
             return newEnt;
         } catch (Exception e){
