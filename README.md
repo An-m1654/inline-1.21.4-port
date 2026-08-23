@@ -1,7 +1,11 @@
-# NOTE:
+# NOTE
 This is an unofficial port of the mod inline made by SamsTheNerd ((link)[https://github.com/SamsTheNerd/inline])
 
 This is one of the dependencies of my work to port Hex Casting to 1.21.4
+
+# IMPORTANT
+
+This port only has Fabric in it. Not Neoforge. I don't plan on doing that port myself as I don't have sufficient knowledge of Neoforge. I also don't plan on taking pull requests for Neoforge.
 
 # Inline
 
