@@ -1,3 +1,8 @@
+# NOTE:
+This is an unofficial port of the mod inline made by SamsTheNerd ((link)[https://github.com/SamsTheNerd/inline])
+
+This is one of the dependencies of my work to port Hex Casting to 1.21.4
+
 # Inline
 
 Inline is a minecraft library for rendering in-line with text. It has some player facing features, mostly for fun, but also to serve as examples and helpers for future devs.
