@@ -7,6 +7,8 @@ This is one of the dependencies of my work to port Hex Casting to 1.21.4
 
 This port only has Fabric in it. Not Neoforge. I don't plan on doing that port myself as I don't have sufficient knowledge of Neoforge. I also don't plan on taking pull requests for Neoforge.
 
+Also I didn't touch the Jenkins file so it most likely doesn't work. I only ported the actual mod, nothing else.
+
 # Inline
 
 Inline is a minecraft library for rendering in-line with text. It has some player facing features, mostly for fun, but also to serve as examples and helpers for future devs.
