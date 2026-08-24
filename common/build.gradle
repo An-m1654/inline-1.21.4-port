@@ -47,7 +47,9 @@ javadoc{
 publishing {
     publications {
         mavenCommon(MavenPublication) {
-            artifactId = base.archivesName
+            groupId = maven_group
+            artifactId = "$modID-common"
+            version = mod_version
             from components.java
         }
     }
@@ -55,6 +57,10 @@ publishing {
     repositories {
         maven {
             url System.getenv("local_maven_url")
+            credentials {
+                username System.getenv("GITHUB_USERNAME")
+                password System.getenv("GITHUB_TOKEN")
+            }
         }
     }
 }

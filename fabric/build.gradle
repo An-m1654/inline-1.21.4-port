@@ -101,7 +101,9 @@ components.java {
 publishing {
     publications {
         mavenFabric(MavenPublication) {
-            artifactId = base.archivesName
+            groupId = maven_group
+            artifactId = "$modID-fabric"
+            version = mod_version
             from components.java
         }
     }
@@ -109,6 +111,10 @@ publishing {
     repositories {
         maven {
             url System.getenv("local_maven_url")
+            credentials {
+                username System.getenv("GITHUB_USERNAME")
+                password System.getenv("GITHUB_TOKEN")
+            }
         }
     }
 }
