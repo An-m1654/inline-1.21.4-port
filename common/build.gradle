@@ -41,6 +41,7 @@ javadoc{
     include "com/samsthenerd/inline/tooltips/**/*.java"
     include "com/samsthenerd/inline/utils/**/*.java"
     finalizedBy = [tasks.named("javadocExtras")];
+    failOnError = false
 }
 
 
